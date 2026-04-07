@@ -1,0 +1,19 @@
+{
+  "mode": "direct",
+  "ssh": {
+    "host": "43.248.129.172",
+    "user": "root",
+    "keyPath": "/Users/mac/Desktop/cd.pem",
+    "password": ""
+  },
+  "db": {
+    "host": "43.248.129.172",
+    "port": "3306",
+    "user": "wowitem",
+    "password": "GknNJLRtcE6RzigVJFF8",
+    "database": "acore_world_test",
+    "dbstruct": "3.3.5(TC2)"
+  },
+  "saveConfig": true,
+  "savePassword": true
+}

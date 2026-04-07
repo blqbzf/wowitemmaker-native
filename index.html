@@ -1,0 +1,536 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WOWItemMaker macOS Prototype V2</title>
+  <style>
+    :root {
+      --bg:#0b1020; --panel:#121933; --panel2:#182142; --line:#2b3766; --text:#e8ecff; --muted:#aeb8e8;
+      --accent:#6ea8ff; --accent2:#8b5cf6; --danger:#ef4444; --ok:#22c55e;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text)}
+    .app{max-width:1800px;margin:0 auto;padding:20px;display:grid;gap:16px}
+    .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+    .hd{padding:14px 18px;border-bottom:1px solid var(--line);font-weight:700}.bd{padding:16px 18px}
+    .top{display:grid;grid-template-columns:1.4fr 1fr;gap:16px}.status{font-size:14px;color:var(--muted)}
+    .tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}.tab{border:none;border-radius:10px;padding:10px 14px;min-height:40px;background:#22305d;color:#dce5ff;font-weight:700;cursor:pointer}
+    .tab.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}.pane{display:none}.pane.active{display:block}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px}.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px 18px}
+    .field{display:flex;flex-direction:column;gap:6px}.field label{font-size:13px;color:var(--muted);font-weight:600}
+    input,select,textarea,button{font:inherit} input,select,textarea{width:100%;min-height:42px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--text);padding:8px 12px}
+    textarea{min-height:110px;resize:vertical} button{min-height:42px;border:none;border-radius:10px;padding:0 14px;cursor:pointer;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-weight:700}
+    button.secondary{background:#243056} button.danger{background:linear-gradient(135deg,#f87171,#dc2626)} button.ok{background:linear-gradient(135deg,#34d399,#059669)}
+    .section{margin-top:18px}.section h3{margin:0 0 12px;font-size:16px}.matrix{width:100%;border-collapse:collapse}.matrix th,.matrix td{border:1px solid var(--line);padding:8px;vertical-align:top}.matrix th{background:#1a2449;text-align:left;color:#dbe4ff}
+    .actions-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.subtle{font-size:12px;color:var(--muted)} .hidden{display:none}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="top">
+      <section class="panel">
+        <div class="hd">连接信息（Connection Info）</div>
+        <div class="bd">
+          <div class="status" id="connStatV2">V2 已开工，当前优先迁移字段与读取链。</div>
+          <div class="grid-3" style="margin-top:12px">
+            <div class="field"><label>Mode（连接模式）</label><select id="conn_mode_v2"><option value="local">local</option><option value="remote" selected>remote</option></select></div>
+            <div class="field"><label>DbStruct（数据库结构）</label><input id="dbstruct_v2" value="3.3.5(TC2)"></div>
+            <div class="field"><label>DB Host（数据库主机）</label><input id="db_host_v2" value="127.0.0.1"></div>
+            <div class="field"><label>DB Port（数据库端口）</label><input id="db_port_v2" value="3306"></div>
+            <div class="field"><label>DB User（数据库用户）</label><input id="db_user_v2" value="root"></div>
+            <div class="field"><label>DB Password（数据库密码）</label><input id="db_password_v2" type="password"></div>
+            <div class="field"><label>Database（数据库名）</label><input id="db_name_v2" value="acore_world"></div>
+            <div class="field"><label>SSH Host（SSH主机）</label><input id="ssh_host_v2" value="43.248.129.172"></div>
+            <div class="field"><label>SSH User（SSH用户）</label><input id="ssh_user_v2" value="root"></div>
+            <div class="field"><label>SSH KeyPath（SSH密钥路径）</label><input id="ssh_key_path_v2" value="/Users/mac/Desktop/cd.pem"></div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+            <button class="secondary" id="loadConfigBtnV2">读取配置（Load Config）</button>
+            <button class="secondary" id="saveConfigBtnV2">保存配置（Save Config）</button>
+            <button class="ok" id="testConnBtnV2">测试连接（Test Conn）</button>
+          </div>
+        </div>
+      </section>
+      <section class="panel">
+        <div class="hd">模板 / 载入（Template & Load）</div>
+        <div class="bd grid-2">
+          <div class="field"><label>Entry（物品ID）</label><input id="entry" value="910004"></div>
+          <div class="field"><label>TemplateEntry（模板物品ID）</label><input id="templateEntryInput" value="21215"></div>
+          <div class="field"><label>Name_EN（英文名）</label><input id="name_en" value="Nolan Bento"></div>
+          <div class="field"><label>Name_ZH（中文名）</label><input id="name_zh" value="诺兰便当"></div>
+          <div class="field"><label>Status（状态）</label><input id="v2Status" value="执行中" readonly></div>
+          <div class="field"><label>Actions（动作）</label><div style="display:flex;gap:8px"><button id="loadCurrentEntryBtnV2">读取当前（Load Current）</button><button class="secondary" id="applyTemplateBtnV2">读取模板（Load Template）</button></div></div>
+        </div>
+      </section>
+    </div>
+
+    <section class="panel">
+      <div class="hd">物品信息（Item Info）</div>
+      <div class="bd">
+        <div class="tabs" id="item-tabs">
+          <button class="tab active" data-tab="basic">基础信息 / Basic</button>
+          <button class="tab" data-tab="extend">描述扩展 / Description & Extra</button>
+          <button class="tab" data-tab="requirement">使用条件 / Requirements</button>
+          <button class="tab" data-tab="stats">属性 / Stats</button>
+          <button class="tab" data-tab="combat">战斗 / Combat</button>
+          <button class="tab" data-tab="spells">法术 / Spells</button>
+          <button class="tab" data-tab="socket">插槽 / Socket</button>
+          <button class="tab" data-tab="spell-advanced">高级法术 / Advanced Spell</button>
+          <button class="tab" data-tab="advanced">高级机制 / Advanced Systems</button>
+        </div>
+
+        <div class="pane active" data-pane="basic">
+          <div class="grid-3">
+            <div class="field"><label>Entry（物品ID）</label><input data-sync="entry"></div>
+            <div class="field"><label>Class（主类别）</label><input id="class_id"></div>
+            <div class="field"><label>SubClass（子类别）</label><input id="subclass"></div>
+            <div class="field"><label>DisplayID（显示ID）</label><input id="displayid"></div>
+            <div class="field"><label>Quality（品质）</label><input id="quality"></div>
+            <div class="field"><label>Bonding（绑定类型）</label><input id="bonding"></div>
+            <div class="field"><label>BuyCount（购买数量）</label><input id="buycount"></div>
+            <div class="field"><label>BuyPrice（购买价格）</label><input id="buyprice"></div>
+            <div class="field"><label>SellPrice（出售价格）</label><input id="sellprice"></div>
+            <div class="field"><label>ItemLevel（物品等级）</label><input id="itemlevel"></div>
+            <div class="field"><label>MaxCount（最大唯一数）</label><input id="maxcount"></div>
+            <div class="field"><label>Stackable（堆叠数量）</label><input id="stackable"></div>
+            <div class="field"><label>MaxDurability（最大耐久）</label><input id="maxdurability"></div>
+          </div>
+          <div class="section"><h3>Name（名称）</h3><div class="grid-2"><div class="field"><label>Name_EN（英文名）</label><textarea data-sync="name_en"></textarea></div><div class="field"><label>Name_ZH（中文名）</label><textarea data-sync="name_zh"></textarea></div></div></div>
+        </div>
+
+        <div class="pane" data-pane="extend">
+          <div class="section"><h3>Description（描述）</h3><div class="grid-2"><div class="field"><label>Description_EN（英文描述）</label><textarea id="desc_en"></textarea></div><div class="field"><label>Description_ZH（中文描述）</label><textarea id="desc_zh"></textarea></div></div></div>
+        </div>
+
+        <div class="pane" data-pane="requirement"><div class="grid-3">
+          <div class="field"><label>RequiredLevel（需求等级）</label><input id="requiredlevel"></div>
+          <div class="field"><label>AllowableClass（职业限制）</label><input id="allowableclass"></div>
+          <div class="field"><label>AllowableRace（种族限制）</label><input id="allowablerace"></div>
+          <div class="field"><label>RequiredSkill（需求技能）</label><input id="required_skill"></div>
+          <div class="field"><label>RequiredSkillRank（需求技能等级）</label><input id="required_skill_rank"></div>
+          <div class="field"><label>RequiredSpell（需求法术）</label><input id="requiredspell"></div>
+          <div class="field"><label>RequiredHonorRank（需求荣誉等级）</label><input id="requiredhonorrank"></div>
+          <div class="field"><label>RequiredCityRank（需求城市等级）</label><input id="required_city_rank"></div>
+          <div class="field"><label>RequiredReputationFaction（需求声望阵营）</label><input id="required_reputation_faction"></div>
+          <div class="field"><label>RequiredReputationRank（需求声望等级）</label><input id="required_reputation_rank"></div>
+          <div class="field"><label>Area（区域）</label><input id="area"></div>
+          <div class="field"><label>Map（地图）</label><input id="map"></div>
+        </div></div>
+
+        <div class="pane" data-pane="stats"><table class="matrix"><thead><tr><th>#</th><th>StatType</th><th>StatValue</th></tr></thead><tbody>
+          <tr><td>1</td><td><input id="stat_type_1"></td><td><input id="stat_value_1"></td></tr>
+          <tr><td>2</td><td><input id="stat_type_2"></td><td><input id="stat_value_2"></td></tr>
+          <tr><td>3</td><td><input id="stat_type_3"></td><td><input id="stat_value_3"></td></tr>
+          <tr><td>4</td><td><input id="stat_type_4"></td><td><input id="stat_value_4"></td></tr>
+          <tr><td>5</td><td><input id="stat_type_5"></td><td><input id="stat_value_5"></td></tr>
+        </tbody></table></div>
+
+        <div class="pane" data-pane="combat"><div class="grid-3">
+          <div class="field"><label>Armor（护甲）</label><input id="armor"></div>
+          <div class="field"><label>Delay（攻击速度）</label><input id="delay"></div>
+          <div class="field"><label>Block（格挡）</label><input id="block"></div>
+          <div class="field"><label>Holy（神圣抗性）</label><input id="holy_res"></div>
+          <div class="field"><label>Fire（火焰抗性）</label><input id="fire_res"></div>
+          <div class="field"><label>Nature（自然抗性）</label><input id="nature_res"></div>
+          <div class="field"><label>Frost（冰霜抗性）</label><input id="frost_res"></div>
+          <div class="field"><label>Shadow（暗影抗性）</label><input id="shadow_res"></div>
+          <div class="field"><label>Arcane（奥术抗性）</label><input id="arcane_res"></div>
+        </div></div>
+
+        <div class="pane" data-pane="spells"><table class="matrix"><thead><tr><th>Slot</th><th>SpellID</th><th>Trigger</th><th>Charges</th></tr></thead><tbody>
+          <tr><td>1</td><td><input id="spellid_1"></td><td><input id="spelltrigger_1"></td><td><input id="spellcharges_1"></td></tr>
+          <tr><td>2</td><td><input id="spellid_2"></td><td><input id="spelltrigger_2"></td><td><input id="spellcharges_2"></td></tr>
+          <tr><td>3</td><td><input id="spellid_3"></td><td><input id="spelltrigger_3"></td><td><input id="spellcharges_3"></td></tr>
+          <tr><td>4</td><td><input id="spellid_4"></td><td><input id="spelltrigger_4"></td><td><input id="spellcharges_4"></td></tr>
+        </tbody></table></div>
+
+        <div class="pane" data-pane="socket"><div class="grid-2">
+          <div class="field"><label>SocketColor_1（插槽颜色_1）</label><input id="socket_color_1"></div>
+          <div class="field"><label>SocketColor_2（插槽颜色_2）</label><input id="socket_color_2"></div>
+          <div class="field"><label>SocketColor_3（插槽颜色_3）</label><input id="socket_color_3"></div>
+          <div class="field"><label>SocketBonus（插槽奖励）</label><input id="socket_bonus"></div>
+        </div></div>
+
+        <div class="pane" data-pane="spell-advanced"><table class="matrix"><thead><tr><th>Slot</th><th>Category</th><th>Cooldown</th><th>PPM</th></tr></thead><tbody>
+          <tr><td>1</td><td><input id="spell_category_1"></td><td><input id="spell_category_cd_1"></td><td><input id="spell_ppm_1"></td></tr>
+          <tr><td>2</td><td><input id="spell_category_2"></td><td><input id="spell_category_cd_2"></td><td><input id="spell_ppm_2"></td></tr>
+          <tr><td>3</td><td><input id="spell_category_3"></td><td><input id="spell_category_cd_3"></td><td><input id="spell_ppm_3"></td></tr>
+          <tr><td>4</td><td><input id="spell_category_4"></td><td><input id="spell_category_cd_4"></td><td><input id="spell_ppm_4"></td></tr>
+        </tbody></table></div>
+
+        <div class="pane" data-pane="advanced"><div class="grid-3">
+          <div class="field"><label>RandomProperty（随机属性）</label><input id="random_property"></div>
+          <div class="field"><label>RandomSuffix（随机词缀）</label><input id="random_suffix"></div>
+          <div class="field"><label>BagFamily（容器类型）</label><input id="bag_family"></div>
+          <div class="field"><label>RangedModRange（远程修正距离）</label><input id="ranged_mod_range"></div>
+          <div class="field"><label>ScalingStatValue（缩放属性数值）</label><input id="scaling_stat_value"></div>
+          <div class="field"><label>ScalingStatDistribution（缩放属性分布）</label><input id="scaling_stat_distribution"></div>
+          <div class="field"><label>RequiredDisenchantSkill（需求分解技能）</label><input id="required_disenchant_skill"></div>
+          <div class="field"><label>GemProperties（宝石属性）</label><input id="gem_properties"></div>
+          <div class="field"><label>TotemCategory（图腾分类）</label><input id="totem_category"></div>
+          <div class="field"><label>Faction / FlagsExtra</label><input id="faction_or_flags_extra"></div>
+          <div class="field"><label>HolidayID（节日ID）</label><input id="holiday_id"></div>
+          <div class="field"><label>ScriptName（脚本名）</label><input id="script_name"></div>
+        </div></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="hd">动作区（Actions）</div>
+      <div class="bd actions-grid">
+        <button class="ok" id="saveV2Btn">保存物品（Save Item）</button>
+        <button class="secondary" id="saveLocaleV2Btn">保存本地化（Save Locale）</button>
+        <button class="danger" id="deleteV2Btn">删除物品（Delete Item）</button>
+        <button class="secondary" id="normalizeV2Btn">规范化（Normalize）</button>
+        <button class="secondary">导出新增SQL（Get Add SQL）</button>
+        <button class="secondary">导出编辑SQL（Get Edit SQL）</button>
+        <button class="secondary">物品搜索（Search Items）</button>
+        <button class="secondary">执行SQL（Execute SQL）</button>
+      </div>
+      <div class="bd"><div class="subtle" id="actionStatusV2">V2 执行中：继续迁移读取、保存、删除、字典联动。</div></div>
+    </section>
+  </div>
+
+  <script>
+    const tabs = document.querySelectorAll('.tab');
+    const panes = document.querySelectorAll('.pane');
+    tabs.forEach(btn => btn.addEventListener('click', () => {
+      tabs.forEach(x => x.classList.remove('active'));
+      panes.forEach(x => x.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelector(`.pane[data-pane="${btn.dataset.tab}"]`)?.classList.add('active');
+    }));
+
+    document.querySelectorAll('[data-sync="entry"]').forEach(el => {
+      el.value = document.getElementById('entry').value;
+      el.addEventListener('input', e => document.getElementById('entry').value = e.target.value);
+    });
+    document.querySelectorAll('[data-sync="name_en"]').forEach(el => {
+      el.value = document.getElementById('name_en').value;
+      el.addEventListener('input', e => document.getElementById('name_en').value = e.target.value);
+    });
+    document.querySelectorAll('[data-sync="name_zh"]').forEach(el => {
+      el.value = document.getElementById('name_zh').value;
+      el.addEventListener('input', e => document.getElementById('name_zh').value = e.target.value);
+    });
+
+
+    async function loadText(path) {
+      const res = await fetch(path);
+      if (!res.ok) throw new Error(`load failed: ${path}`);
+      return await res.text();
+    }
+
+    function fillSelectFromLines(id, lines) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.innerHTML = '';
+      lines.filter(Boolean).forEach(line => {
+        const opt = document.createElement('option');
+        opt.value = line;
+        opt.textContent = line;
+        el.appendChild(opt);
+      });
+    }
+
+    async function loadDictionary(file, targets) {
+      try {
+        const txt = await loadText(`data/${file}`);
+        const lines = txt.split(/
+?
+/).map(x => x.trim()).filter(Boolean);
+        targets.forEach(id => fillSelectFromLines(id, lines));
+      } catch (e) {
+        console.warn('dict load failed', file, e.message);
+      }
+    }
+
+    async function loadSubclassByClassText(classText) {
+      const m = String(classText || '').match(/\d+/);
+      const classId = m ? m[0] : '0';
+      try {
+        const txt = await loadText(`data/subclass${classId}.txt`);
+        const lines = txt.split(/
+?
+/).map(x => x.trim()).filter(Boolean);
+        fillSelectFromLines('subclass', lines);
+      } catch (e) {
+        console.warn('subclass load failed', classId, e.message);
+      }
+    }
+
+    async function loadDictionariesV2() {
+      await Promise.all([
+        loadDictionary('class.txt', ['class_id']),
+        loadDictionary('Quality.txt', ['quality']),
+        loadDictionary('bonding.txt', ['bonding']),
+        loadDictionary('InventoryType.txt', []),
+        loadDictionary('Material.txt', []),
+        loadDictionary('AllowableClass.txt', []),
+        loadDictionary('AllowableRace.txt', []),
+        loadDictionary('spellid.txt', []),
+        loadDictionary('spelltrigger.txt', []),
+        loadDictionary('RandomProperty.txt', []),
+        loadDictionary('RandomSuffix.txt', []),
+        loadDictionary('ammo_type.txt', []),
+        loadDictionary('displayid.txt', [])
+      ]);
+      await loadSubclassByClassText(document.getElementById('class_id')?.value || '0');
+      setStatus('字典已载入 / Dictionaries loaded');
+    }
+
+    async function fetchJson(url, options = {}) {
+      const res = await fetch(url, options);
+      if (!res.ok) throw new Error(await res.text());
+      return res.json();
+    }
+
+    function setStatus(msg) {
+      document.getElementById('v2Status').value = msg;
+      document.getElementById('actionStatusV2').textContent = msg;
+    }
+
+    function applyItemData(data) {
+      if (!data) return;
+      const map = {
+        entry: data.entry,
+        name_en: data.name_en,
+        name_zh: data.name_zh,
+        desc_en: data.desc_en,
+        desc_zh: data.desc_zh,
+        displayid: data.displayid,
+        class_id: data.class_id,
+        subclass: data.subclass,
+        quality: data.quality,
+        bonding: data.bonding,
+        requiredlevel: data.requiredlevel,
+        stackable: data.stackable,
+        maxcount: data.maxcount,
+        maxdurability: data.maxdurability,
+        buycount: data.buycount,
+        buyprice: data.buyprice,
+        sellprice: data.sellprice,
+        itemlevel: data.itemlevel,
+        allowablerace: data.allowablerace,
+        allowableclass: data.allowableclass,
+        required_skill: data.required_skill,
+        required_skill_rank: data.required_skill_rank,
+        requiredspell: data.requiredspell,
+        requiredhonorrank: data.requiredhonorrank,
+        required_city_rank: data.required_city_rank,
+        required_reputation_faction: data.required_reputation_faction,
+        required_reputation_rank: data.required_reputation_rank,
+        area: data.area,
+        map: data.map,
+        armor: data.armor,
+        delay: data.delay,
+        block: data.block,
+        holy_res: data.holy_res,
+        fire_res: data.fire_res,
+        nature_res: data.nature_res,
+        frost_res: data.frost_res,
+        shadow_res: data.shadow_res,
+        arcane_res: data.arcane_res,
+        spellid_1: data.spellid_1,
+        spelltrigger_1: data.spelltrigger_1,
+        spellcharges_1: data.spellcharges_1,
+        spellid_2: data.spellid_2,
+        spelltrigger_2: data.spelltrigger_2,
+        spellcharges_2: data.spellcharges_2,
+        spellid_3: data.spellid_3,
+        spelltrigger_3: data.spelltrigger_3,
+        spellcharges_3: data.spellcharges_3,
+        spellid_4: data.spellid_4,
+        spelltrigger_4: data.spelltrigger_4,
+        spellcharges_4: data.spellcharges_4,
+        stat_type_1: data.stat_type_1,
+        stat_value_1: data.stat_value_1,
+        stat_type_2: data.stat_type_2,
+        stat_value_2: data.stat_value_2,
+        stat_type_3: data.stat_type_3,
+        stat_value_3: data.stat_value_3,
+        stat_type_4: data.stat_type_4,
+        stat_value_4: data.stat_value_4,
+        stat_type_5: data.stat_type_5,
+        stat_value_5: data.stat_value_5,
+        socket_color_1: data.socket_color_1,
+        socket_color_2: data.socket_color_2,
+        socket_color_3: data.socket_color_3,
+        socket_bonus: data.socket_bonus,
+        random_property: data.random_property,
+        random_suffix: data.random_suffix,
+        bag_family: data.bag_family,
+        ranged_mod_range: data.ranged_mod_range,
+        scaling_stat_value: data.scaling_stat_value,
+        scaling_stat_distribution: data.scaling_stat_distribution,
+        required_disenchant_skill: data.required_disenchant_skill,
+        gem_properties: data.gem_properties,
+        totem_category: data.totem_category,
+        faction_or_flags_extra: data.faction_or_flags_extra,
+        holiday_id: data.holiday_id,
+        script_name: data.script_name
+      };
+      Object.entries(map).forEach(([id, value]) => {
+        const el = document.getElementById(id);
+        if (el && value !== undefined && value !== null) el.value = value;
+      });
+      document.querySelectorAll('[data-sync="entry"]').forEach(el => el.value = document.getElementById('entry').value);
+      document.querySelectorAll('[data-sync="name_en"]').forEach(el => el.value = document.getElementById('name_en').value);
+      document.querySelectorAll('[data-sync="name_zh"]').forEach(el => el.value = document.getElementById('name_zh').value);
+    }
+
+    async function loadConfigV2() {
+      try {
+        const cfg = await fetchJson('/api/config');
+        const set = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined && val !== null) el.value = val; };
+        set('conn_mode_v2', cfg.mode || 'remote');
+        set('dbstruct_v2', cfg.dbstruct || '3.3.5(TC2)');
+        set('db_host_v2', cfg.db_host || '127.0.0.1');
+        set('db_port_v2', cfg.db_port || '3306');
+        set('db_user_v2', cfg.db_user || 'root');
+        set('db_password_v2', cfg.db_password || '');
+        set('db_name_v2', cfg.db_name || 'acore_world');
+        set('ssh_host_v2', cfg.ssh_host || '43.248.129.172');
+        set('ssh_user_v2', cfg.ssh_user || 'root');
+        set('ssh_key_path_v2', cfg.ssh_key_path || '/Users/mac/Desktop/cd.pem');
+        setStatus('配置已载入 / Config loaded');
+      } catch (e) {
+        setStatus('读取配置失败 / ' + e.message);
+      }
+    }
+
+    async function saveConfigV2() {
+      const body = {
+        mode: document.getElementById('conn_mode_v2').value,
+        dbstruct: document.getElementById('dbstruct_v2').value,
+        db_host: document.getElementById('db_host_v2').value,
+        db_port: document.getElementById('db_port_v2').value,
+        db_user: document.getElementById('db_user_v2').value,
+        db_password: document.getElementById('db_password_v2').value,
+        db_name: document.getElementById('db_name_v2').value,
+        ssh_host: document.getElementById('ssh_host_v2').value,
+        ssh_user: document.getElementById('ssh_user_v2').value,
+        ssh_key_path: document.getElementById('ssh_key_path_v2').value
+      };
+      try {
+        await fetchJson('/api/config', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+        setStatus('配置已保存 / Config saved');
+      } catch (e) {
+        setStatus('保存配置失败 / ' + e.message);
+      }
+    }
+
+    async function testConnV2() {
+      try {
+        const body = {
+          mode: document.getElementById('conn_mode_v2').value,
+          dbstruct: document.getElementById('dbstruct_v2').value,
+          db_host: document.getElementById('db_host_v2').value,
+          db_port: document.getElementById('db_port_v2').value,
+          db_user: document.getElementById('db_user_v2').value,
+          db_password: document.getElementById('db_password_v2').value,
+          db_name: document.getElementById('db_name_v2').value,
+          ssh_host: document.getElementById('ssh_host_v2').value,
+          ssh_user: document.getElementById('ssh_user_v2').value,
+          ssh_key_path: document.getElementById('ssh_key_path_v2').value
+        };
+        const result = await fetchJson('/api/test-conn', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+        setStatus(result.message || '连接成功 / Connected');
+      } catch (e) {
+        setStatus('连接测试失败 / ' + e.message);
+      }
+    }
+
+    async function loadItem(entry) {
+      try {
+        setStatus('读取中 / Loading...');
+        const data = await fetchJson(`/api/item?entry=${encodeURIComponent(entry)}`);
+        applyItemData(data);
+        setStatus(`已读取 ${entry}`);
+      } catch (e) {
+        setStatus('读取失败 / ' + e.message);
+      }
+    }
+
+    async function saveItem() {
+      const body = {
+        entry: document.getElementById('entry').value,
+        name_en: document.getElementById('name_en').value,
+        displayid: document.getElementById('displayid').value,
+        class_id: document.getElementById('class_id').value,
+        subclass: document.getElementById('subclass').value,
+        quality: document.getElementById('quality').value,
+        bonding: document.getElementById('bonding').value,
+        requiredlevel: document.getElementById('requiredlevel').value,
+        stackable: document.getElementById('stackable').value,
+        spellid_1: document.getElementById('spellid_1').value,
+        spelltrigger_1: document.getElementById('spelltrigger_1').value,
+        spellcharges_1: document.getElementById('spellcharges_1').value,
+        desc_en: document.getElementById('desc_en').value
+      };
+      try {
+        const result = await fetchJson('/api/save-item', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+        setStatus(result.message || '物品已保存');
+      } catch (e) {
+        setStatus('保存失败 / ' + e.message);
+      }
+    }
+
+    async function saveLocale() {
+      const body = {
+        entry: document.getElementById('entry').value,
+        name_zh: document.getElementById('name_zh').value,
+        desc_zh: document.getElementById('desc_zh').value
+      };
+      try {
+        const result = await fetchJson('/api/save-locale', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+        setStatus(result.message || '本地化已保存');
+      } catch (e) {
+        setStatus('本地化保存失败 / ' + e.message);
+      }
+    }
+
+    async function deleteItem() {
+      const entry = document.getElementById('entry').value;
+      if (!confirm(`确认删除 ${entry} ?`)) return;
+      try {
+        const result = await fetchJson('/api/delete-item', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ entry }) });
+        setStatus(result.message || '物品已删除');
+      } catch (e) {
+        setStatus('删除失败 / ' + e.message);
+      }
+    }
+
+    async function normalizeItem() {
+      const body = {
+        entry: document.getElementById('entry').value,
+        name_en: document.getElementById('name_en').value,
+        name_zh: document.getElementById('name_zh').value,
+        desc_en: document.getElementById('desc_en').value,
+        desc_zh: document.getElementById('desc_zh').value
+      };
+      try {
+        const result = await fetchJson('/api/normalize', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+        setStatus(result.message || '规范化完成');
+      } catch (e) {
+        setStatus('规范化失败 / ' + e.message);
+      }
+    }
+
+    document.getElementById('loadConfigBtnV2').addEventListener('click', loadConfigV2);
+    document.getElementById('class_id').addEventListener('change', e => loadSubclassByClassText(e.target.value));
+    document.getElementById('saveConfigBtnV2').addEventListener('click', saveConfigV2);
+    document.getElementById('testConnBtnV2').addEventListener('click', testConnV2);
+    document.getElementById('loadCurrentEntryBtnV2').addEventListener('click', () => loadItem(document.getElementById('entry').value));
+    document.getElementById('applyTemplateBtnV2').addEventListener('click', () => loadItem(document.getElementById('templateEntryInput').value));
+    document.getElementById('saveV2Btn').addEventListener('click', saveItem);
+    document.getElementById('saveLocaleV2Btn').addEventListener('click', saveLocale);
+    document.getElementById('deleteV2Btn').addEventListener('click', deleteItem);
+    document.getElementById('normalizeV2Btn').addEventListener('click', normalizeItem);
+
+    loadConfigV2();
+    loadDictionariesV2();
+  </script>
+</body>
+</html>

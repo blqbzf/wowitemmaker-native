@@ -1,0 +1,13 @@
+{
+  "tabs": [
+    {"id":"tab-basic","title":"基础信息 / Basic","sections":["identity","economy","name"]},
+    {"id":"tab-extend","title":"描述扩展 / Description & Extra","sections":["description","behavior","pageLock"]},
+    {"id":"tab-requirement","title":"使用条件 / Requirements","sections":["eligibility","location"]},
+    {"id":"tab-stats","title":"属性 / Stats","sections":["statsMatrix"]},
+    {"id":"tab-combat","title":"战斗 / Combat","sections":["damage","resist","combatCore"]},
+    {"id":"tab-spells","title":"法术 / Spells","sections":["spellMatrix"]},
+    {"id":"tab-socket","title":"插槽 / Socket","sections":["socketCore"]},
+    {"id":"tab-spell-advanced","title":"高级法术 / Advanced Spell Params","sections":["socketContent","spellAdvancedMatrix"]},
+    {"id":"tab-advanced","title":"高级机制 / Advanced Systems","sections":["randomScaling","advancedMisc"]}
+  ]
+}

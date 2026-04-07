@@ -1,0 +1,17 @@
+{
+  "version": "2026.04.07.154007",
+  "files": [
+    {
+      "name": "patch-Z.mpq",
+      "url": "http://43.248.129.172:88/patches/test/patch-Z.mpq?v=1775547607",
+      "sha256": "e9c62779162f898258e356f16acb18f089b4a613e879c27cff67cddc9fa529cd",
+      "size": 326310
+    },
+    {
+      "name": "patch-zhCN-Z.mpq",
+      "url": "http://43.248.129.172:88/patches/test/patch-zhCN-Z.mpq?v=1775547607",
+      "sha256": "e9c62779162f898258e356f16acb18f089b4a613e879c27cff67cddc9fa529cd",
+      "size": 326310
+    }
+  ]
+}

@@ -1,0 +1,135 @@
+name: Build WOWItemMaker Desktop App
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller pymysql PyQt5 PyQtWebEngine
+
+    - name: Build macOS app
+      run: |
+        pyinstaller --clean --noconfirm desktop.spec
+
+    - name: Create DMG (macOS)
+      run: |
+        brew install create-dmg
+        create-dmg \
+          --volname "WOWItemMaker" \
+          --volicon "icon.png" \
+          --window-pos 200 120 \
+          --window-size 800 400 \
+          --icon-size 100 \
+          --icon "WOWItemMaker.app" 200 190 \
+          --hide-extension "WOWItemMaker.app" \
+          --app-drop-link 600 185 \
+          "WOWItemMaker-macos.dmg" \
+          "dist/"
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: WOWItemMaker-macos
+        path: WOWItemMaker-macos.dmg
+
+  build-windows:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller pymysql PyQt5 PyQtWebEngine
+
+    - name: Build Windows app
+      run: |
+        pyinstaller --clean --noconfirm desktop.spec
+
+    - name: Create ZIP (Windows)
+      run: |
+        cd dist
+        7z a -tzip ../WOWItemMaker-windows.zip WOWItemMaker.exe
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: WOWItemMaker-windows
+        path: WOWItemMaker-windows.zip
+
+  release:
+    needs: [build-macos, build-windows]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+
+    steps:
+    - name: Download macOS artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: WOWItemMaker-macos
+        path: ./artifacts/
+
+    - name: Download Windows artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: WOWItemMaker-windows
+        path: ./artifacts/
+
+    - name: Create Release
+      run: |
+        gh release create v1.0.0 \
+          ./artifacts/WOWItemMaker-macos.dmg \
+          ./artifacts/WOWItemMaker-windows.zip \
+          --title "WOWItemMaker v1.0.0" \
+          --notes "跨平台桌面版 WOWItemMaker 工具
+
+          ## 下载说明
+          - macOS 用户下载：WOWItemMaker-macos.dmg
+          - Windows 用户下载：WOWItemMaker-windows.zip
+
+          ## macOS 安装
+          1. 双击 DMG 文件
+          2. 拖动应用到 Applications 文件夹
+          3. 双击运行
+
+          ## Windows 安装
+          1. 解压 ZIP 文件
+          2. 双击 WOWItemMaker.exe
+
+          ## 功能
+          ✅ 真正的桌面应用（不是命令行+浏览器）
+          ✅ 读取/编辑/删除物品
+          ✅ 复制/套用物品模板
+          ✅ 生成 Item.dbc 补丁
+          ✅ 打包 MPQ 补丁
+          ✅ 推送补丁到服务器
+          ✅ 自动识别测试服/正式服环境
+
+          ## 界面特点
+          - 内嵌浏览器引擎
+          - 原生菜单栏
+          - 支持高DPI显示
+          - 跨平台统一界面" || echo "Release already exists"

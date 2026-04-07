@@ -1,0 +1,20 @@
+[
+  {
+    "Name": "patch-Z",
+    "Version": "2026.04.07.154007",
+    "Size": 326310,
+    "Sha256": "e9c62779162f898258e356f16acb18f089b4a613e879c27cff67cddc9fa529cd",
+    "DownloadUrl": "http://43.248.129.172:88/patches/test/patch-Z.mpq?v=1775547607",
+    "LocalRelativePath": "Data/patch-Z.mpq",
+    "Required": true
+  },
+  {
+    "Name": "patch-zhCN-Z",
+    "Version": "2026.04.07.154007",
+    "Size": 326310,
+    "Sha256": "e9c62779162f898258e356f16acb18f089b4a613e879c27cff67cddc9fa529cd",
+    "DownloadUrl": "http://43.248.129.172:88/patches/test/patch-zhCN-Z.mpq?v=1775547607",
+    "LocalRelativePath": "Data/zhCN/patch-zhCN-Z.mpq",
+    "Required": true
+  }
+]

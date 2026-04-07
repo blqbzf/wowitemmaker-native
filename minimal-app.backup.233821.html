@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WOWItemMaker Full Item Page</title>
+  <style>
+    :root{--bg:#0b1020;--panel:#121933;--panel2:#182142;--line:#2b3766;--text:#e8ecff;--muted:#aeb8e8;--accent:#6ea8ff;--accent2:#8b5cf6;--ok:#22c55e}
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    .app{max-width:1600px;margin:0 auto;padding:20px;display:grid;gap:16px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px}
+    .hd{padding:14px 18px;border-bottom:1px solid var(--line);font-weight:700}.bd{padding:16px 18px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px 18px}
+    .field{display:flex;flex-direction:column;gap:6px}.field label{font-size:13px;color:var(--muted);font-weight:600}
+    input,textarea,button{font:inherit} input,textarea{width:100%;min-height:42px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--text);padding:8px 12px}
+    textarea{min-height:96px;resize:vertical} button{min-height:42px;border:none;border-radius:10px;padding:0 14px;cursor:pointer;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-weight:700}
+    button.ok{background:linear-gradient(135deg,#34d399,#059669)} .status{color:var(--muted);font-size:14px}
+    .tabs{display:flex;flex-wrap:wrap;gap:8px}.tab{background:#22305d}.tab.active{background:linear-gradient(135deg,var(--accent),var(--accent2))}.pane{display:none}.pane.active{display:block}
+    .matrix{width:100%;border-collapse:collapse}.matrix th,.matrix td{border:1px solid var(--line);padding:8px}.matrix th{background:#1a2449;text-align:left}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <section class="panel">
+      <div class="hd">配置 / Configuration</div>
+      <div class="bd">
+        <div class="grid3">
+          <div class="field"><label>Mode（连接模式）</label><select id="mode"><option value="remote">remote（SSH转发/命令）</option><option value="direct">direct（数据库直连）</option></select></div>
+          <div class="field"><label>SSH Host（SSH主机）</label><input id="ssh_host" value="43.248.129.172"></div>
+          <div class="field"><label>SSH User（SSH用户）</label><input id="ssh_user" value="root"></div>
+          <div class="field"><label>SSH KeyPath（SSH密钥路径）</label><input id="ssh_key_path" value="/Users/mac/Desktop/cd.pem"></div>
+          <div class="field"><label>DB Host（数据库主机）</label><input id="db_host" value="127.0.0.1"></div>
+          <div class="field"><label>DB Port（数据库端口）</label><input id="db_port" value="3306"></div>
+          <div class="field"><label>DB User（数据库用户）</label><input id="db_user" value="wowitem"></div>
+          <div class="field"><label>DB Password（数据库密码）</label><input id="db_password" type="password" value="GknNJLRtcE6RzigVJFF8"></div>
+          <div class="field"><label>Database（数据库名）</label><input id="db_name" value="acore_world_test"></div>
+        </div>
+        <div style="display:flex;gap:16px;margin-top:12px;flex-wrap:wrap;align-items:center">
+          <label style="display:flex;align-items:center;gap:6px;color:var(--muted);font-size:13px"><input id="saveConfig" type="checkbox" checked> SaveAccount（保存账号）</label>
+          <label style="display:flex;align-items:center;gap:6px;color:var(--muted);font-size:13px"><input id="savePassword" type="checkbox" checked> SavePassword（保存密码）</label>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+          <button id="loadConfigBtn">读取配置</button>
+          <button id="saveConfigBtn">保存配置</button>
+          <button class="ok" id="testConnBtn">测试连接</button>
+          <button class="ok" id="loadItemBtn">读取 item</button>
+          <button class="ok" id="saveItemBtn">保存 item</button>
+          <button class="ok" id="saveLocaleBtn">保存 locale</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="hd">物品信息页 / Item Info</div>
+      <div class="bd">
+        <div class="tabs" id="tabs">
+          <button class="tab active" data-pane="basic">基础信息</button>
+          <button class="tab" data-pane="desc">描述</button>
+          <button class="tab" data-pane="req">使用条件</button>
+          <button class="tab" data-pane="stats">属性</button>
+          <button class="tab" data-pane="combat">战斗</button>
+          <button class="tab" data-pane="spells">法术</button>
+          <button class="tab" data-pane="socket">Socket</button>
+          <button class="tab" data-pane="adv">高级字段</button>
+        </div>
+
+        <div class="pane active" data-pane="basic">
+          <div class="grid3" style="margin-top:14px">
+            <div class="field"><label>Entry（物品ID）</label><input id="entry" value="21215"></div>
+            <div class="field"><label>DisplayID（显示ID）</label><input id="displayid"></div>
+            <div class="field"><label>Class（主类别）</label><input id="class_id"></div>
+            <div class="field"><label>SubClass（子类别）</label><input id="subclass"></div>
+            <div class="field"><label>Quality（品质）</label><input id="quality"></div>
+            <div class="field"><label>Bonding（绑定类型）</label><input id="bonding"></div>
+            <div class="field"><label>BuyCount（购买数量）</label><input id="buycount"></div>
+            <div class="field"><label>BuyPrice（购买价格）</label><input id="buyprice"></div>
+            <div class="field"><label>SellPrice（出售价格）</label><input id="sellprice"></div>
+            <div class="field"><label>ItemLevel（物品等级）</label><input id="itemlevel"></div>
+            <div class="field"><label>MaxCount（最大唯一数）</label><input id="maxcount"></div>
+            <div class="field"><label>Stackable（堆叠数量）</label><input id="stackable"></div>
+            <div class="field"><label>MaxDurability（最大耐久）</label><input id="maxdurability"></div>
+            <div class="field"><label>InventoryType（装备位）</label><input id="inventorytype"></div>
+            <div class="field"><label>Material（材质）</label><input id="material"></div>
+          </div>
+          <div class="grid" style="margin-top:14px">
+            <div class="field"><label>Name_EN（英文名）</label><textarea id="name_en"></textarea></div>
+            <div class="field"><label>Name_ZH（中文名）</label><textarea id="name_zh"></textarea></div>
+          </div>
+        </div>
+
+        <div class="pane" data-pane="desc">
+          <div class="grid" style="margin-top:14px">
+            <div class="field"><label>Description_EN（英文描述）</label><textarea id="desc_en"></textarea></div>
+            <div class="field"><label>Description_ZH（中文描述）</label><textarea id="desc_zh"></textarea></div>
+            <div class="field"><label>Flags（标记）</label><input id="flags"></div>
+            <div class="field"><label>ContainerSlots（容器格数）</label><input id="container_slots"></div>
+            <div class="field"><label>ItemSet（套装ID）</label><input id="itemset"></div>
+            <div class="field"><label>Sheath（武器鞘位）</label><input id="sheath"></div>
+            <div class="field"><label>LockID（锁定ID）</label><input id="lock_id"></div>
+            <div class="field"><label>PageText（页面文本ID）</label><input id="page_text"></div>
+            <div class="field"><label>PageMaterial（页面材质）</label><input id="page_material"></div>
+            <div class="field"><label>LanguageID（语言ID）</label><input id="language_id"></div>
+          </div>
+        </div>
+
+        <div class="pane" data-pane="req">
+          <div class="grid3" style="margin-top:14px">
+            <div class="field"><label>AllowableClass（职业限制）</label><input id="allowableclass"></div>
+            <div class="field"><label>AllowableRace（种族限制）</label><input id="allowablerace"></div>
+            <div class="field"><label>RequiredLevel（需求等级）</label><input id="requiredlevel"></div>
+            <div class="field"><label>RequiredSkill（需求技能）</label><input id="required_skill"></div>
+            <div class="field"><label>RequiredSkillRank（需求技能等级）</label><input id="required_skill_rank"></div>
+            <div class="field"><label>RequiredSpell（需求法术）</label><input id="requiredspell"></div>
+            <div class="field"><label>RequiredHonorRank（需求荣誉等级）</label><input id="requiredhonorrank"></div>
+            <div class="field"><label>RequiredCityRank（需求城市等级）</label><input id="required_city_rank"></div>
+            <div class="field"><label>RequiredReputationFaction（需求声望阵营）</label><input id="required_reputation_faction"></div>
+            <div class="field"><label>RequiredReputationRank（需求声望等级）</label><input id="required_reputation_rank"></div>
+            <div class="field"><label>Area（区域）</label><input id="area"></div>
+            <div class="field"><label>Map（地图）</label><input id="map"></div>
+          </div>
+        </div>
+
+        <div class="pane" data-pane="stats">
+          <table class="matrix" style="margin-top:14px">
+            <thead><tr><th>#</th><th>StatType（属性类型）</th><th>StatValue（属性数值）</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td><input id="stat_type_1"></td><td><input id="stat_value_1"></td></tr>
+              <tr><td>2</td><td><input id="stat_type_2"></td><td><input id="stat_value_2"></td></tr>
+              <tr><td>3</td><td><input id="stat_type_3"></td><td><input id="stat_value_3"></td></tr>
+              <tr><td>4</td><td><input id="stat_type_4"></td><td><input id="stat_value_4"></td></tr>
+              <tr><td>5</td><td><input id="stat_type_5"></td><td><input id="stat_value_5"></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pane" data-pane="combat">
+          <div class="grid3" style="margin-top:14px">
+            <div class="field"><label>Armor（护甲）</label><input id="armor"></div>
+            <div class="field"><label>Delay（攻击速度）</label><input id="delay"></div>
+            <div class="field"><label>Block（格挡）</label><input id="block"></div>
+            <div class="field"><label>HolyRes（神圣抗性）</label><input id="holy_res"></div>
+            <div class="field"><label>FireRes（火焰抗性）</label><input id="fire_res"></div>
+            <div class="field"><label>NatureRes（自然抗性）</label><input id="nature_res"></div>
+            <div class="field"><label>FrostRes（冰霜抗性）</label><input id="frost_res"></div>
+            <div class="field"><label>ShadowRes（暗影抗性）</label><input id="shadow_res"></div>
+            <div class="field"><label>ArcaneRes（奥术抗性）</label><input id="arcane_res"></div>
+          </div>
+        </div>
+
+        <div class="pane" data-pane="spells">
+          <table class="matrix" style="margin-top:14px">
+            <thead><tr><th>Slot（序号）</th><th>SpellID（法术ID）</th><th>Trigger（触发方式）</th><th>Charges（法术次数）</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td><input id="spellid_1"></td><td><input id="spelltrigger_1"></td><td><input id="spellcharges_1"></td></tr>
+              <tr><td>2</td><td><input id="spellid_2"></td><td><input id="spelltrigger_2"></td><td><input id="spellcharges_2"></td></tr>
+              <tr><td>3</td><td><input id="spellid_3"></td><td><input id="spelltrigger_3"></td><td><input id="spellcharges_3"></td></tr>
+              <tr><td>4</td><td><input id="spellid_4"></td><td><input id="spelltrigger_4"></td><td><input id="spellcharges_4"></td></tr>
+              <tr><td>5</td><td><input id="spellid_5"></td><td><input id="spelltrigger_5"></td><td><input id="spellcharges_5"></td></tr>
+              <tr><td>6</td><td><input id="spellid_6"></td><td><input id="spelltrigger_6"></td><td><input id="spellcharges_6"></td></tr>
+              <tr><td>7</td><td><input id="spellid_7"></td><td><input id="spelltrigger_7"></td><td><input id="spellcharges_7"></td></tr>
+              <tr><td>8</td><td><input id="spellid_8"></td><td><input id="spelltrigger_8"></td><td><input id="spellcharges_8"></td></tr>
+              <tr><td>9</td><td><input id="spellid_9"></td><td><input id="spelltrigger_9"></td><td><input id="spellcharges_9"></td></tr>
+              <tr><td>10</td><td><input id="spellid_10"></td><td><input id="spelltrigger_10"></td><td><input id="spellcharges_10"></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pane" data-pane="socket">
+          <div class="grid" style="margin-top:14px">
+            <div class="field"><label>SocketColor_1（插槽颜色1）</label><input id="socket_color_1"></div>
+            <div class="field"><label>SocketColor_2（插槽颜色2）</label><input id="socket_color_2"></div>
+            <div class="field"><label>SocketColor_3（插槽颜色3）</label><input id="socket_color_3"></div>
+            <div class="field"><label>SocketBonus（插槽奖励）</label><input id="socket_bonus"></div>
+          </div>
+        </div>
+
+        <div class="pane" data-pane="adv">
+          <div class="grid3" style="margin-top:14px">
+            <div class="field"><label>RandomProperty（随机属性）</label><input id="random_property"></div>
+            <div class="field"><label>RandomSuffix（随机词缀）</label><input id="random_suffix"></div>
+            <div class="field"><label>BagFamily（容器类型）</label><input id="bag_family"></div>
+            <div class="field"><label>RangedModRange（远程修正距离）</label><input id="ranged_mod_range"></div>
+            <div class="field"><label>Duration（持续时间）</label><input id="duration"></div>
+            <div class="field"><label>FlagsExtra（扩展标记）</label><input id="flags_extra"></div>
+            <div class="field"><label>AmmoType（弹药类型）</label><input id="ammo_type"></div>
+            <div class="field"><label>DmgType1（伤害类型1）</label><input id="dmg_type1"></div>
+            <div class="field"><label>RequiredDisenchantSkill（需求分解技能）</label><input id="required_disenchant_skill"></div>
+            <div class="field"><label>GemProperties（宝石属性）</label><input id="gem_properties"></div>
+            <div class="field"><label>TotemCategory（图腾分类）</label><input id="totem_category"></div>
+            <div class="field"><label>ScriptName（脚本名）</label><input id="script_name"></div>
+            <div class="field"><label>GemProperties（宝石属性）</label><input id="gem_properties"></div>
+            <div class="field"><label>TotemCategory（图腾分类）</label><input id="totem_category"></div>
+            <div class="field"><label>ScriptName（脚本名）</label><input id="script_name"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel"><div class="hd">状态 / Status</div><div class="bd"><div class="status" id="status">完整物品信息页已生成</div></div></section>
+  </div>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    const tabs = document.querySelectorAll('.tab');
+    const panes = document.querySelectorAll('.pane');
+    tabs.forEach(btn => btn.onclick = () => { tabs.forEach(x=>x.classList.remove('active')); panes.forEach(x=>x.classList.remove('active')); btn.classList.add('active'); document.querySelector(`.pane[data-pane="${btn.dataset.pane}"]`).classList.add('active'); });
+    function status(msg){ $('status').textContent = msg; }
+    async function fetchJson(url, options={}){ const r = await fetch(url, options); const j = await r.json(); if(!r.ok || j.ok===false) throw new Error(j.error || j.message || JSON.stringify(j)); return j; }
+    function configBody(){ return { mode:$('mode').value, saveConfig:$('saveConfig').checked, savePassword:$('savePassword').checked, ssh:{host:$('ssh_host').value,user:$('ssh_user').value,keyPath:$('ssh_key_path').value}, db:{host:$('db_host').value,port:$('db_port').value,user:$('db_user').value,password:$('db_password').value,database:$('db_name').value} }; }
+    function itemBody(){ return { entry:$('entry').value, name_en:$('name_en').value, name_zh:$('name_zh').value, desc_en:$('desc_en').value, desc_zh:$('desc_zh').value, displayid:$('displayid').value, class_id:$('class_id').value, subclass:$('subclass').value, quality:$('quality').value, bonding:$('bonding').value, buycount:$('buycount').value, buyprice:$('buyprice').value, sellprice:$('sellprice').value, itemlevel:$('itemlevel').value, maxcount:$('maxcount').value, stackable:$('stackable').value, maxdurability:$('maxdurability').value, inventorytype:$('inventorytype').value, material:$('material').value, flags:$('flags').value, container_slots:$('container_slots').value, itemset:$('itemset').value, sheath:$('sheath').value, lock_id:$('lock_id').value, page_text:$('page_text').value, page_material:$('page_material').value, language_id:$('language_id').value, allowableclass:$('allowableclass').value, allowablerace:$('allowablerace').value, requiredlevel:$('requiredlevel').value, required_skill:$('required_skill').value, required_skill_rank:$('required_skill_rank').value, requiredspell:$('requiredspell').value, requiredhonorrank:$('requiredhonorrank').value, required_city_rank:$('required_city_rank').value, required_reputation_faction:$('required_reputation_faction').value, required_reputation_rank:$('required_reputation_rank').value, area:$('area').value, map:$('map').value, stat_type_1:$('stat_type_1').value, stat_value_1:$('stat_value_1').value, stat_type_2:$('stat_type_2').value, stat_value_2:$('stat_value_2').value, stat_type_3:$('stat_type_3').value, stat_value_3:$('stat_value_3').value, stat_type_4:$('stat_type_4').value, stat_value_4:$('stat_value_4').value, stat_type_5:$('stat_type_5').value, stat_value_5:$('stat_value_5').value, armor:$('armor').value, delay:$('delay').value, block:$('block').value, holy_res:$('holy_res').value, fire_res:$('fire_res').value, nature_res:$('nature_res').value, frost_res:$('frost_res').value, shadow_res:$('shadow_res').value, arcane_res:$('arcane_res').value, spellid_1:$('spellid_1').value, spelltrigger_1:$('spelltrigger_1').value, spellcharges_1:$('spellcharges_1').value, spellid_2:$('spellid_2').value, spelltrigger_2:$('spelltrigger_2').value, spellcharges_2:$('spellcharges_2').value, spellid_3:$('spellid_3').value, spelltrigger_3:$('spelltrigger_3').value, spellcharges_3:$('spellcharges_3').value, spellid_4:$('spellid_4').value, spelltrigger_4:$('spelltrigger_4').value, spellcharges_4:$('spellcharges_4').value, socket_color_1:$('socket_color_1').value, socket_color_2:$('socket_color_2').value, socket_color_3:$('socket_color_3').value, socket_bonus:$('socket_bonus').value, random_property:$('random_property').value, random_suffix:$('random_suffix').value, bag_family:$('bag_family').value, ranged_mod_range:$('ranged_mod_range').value, duration:$('duration').value, flags_extra:$('flags_extra').value, ammo_type:$('ammo_type').value, dmg_type1:$('dmg_type1').value, required_disenchant_skill:$('required_disenchant_skill').value, gem_properties:$('gem_properties').value, totem_category:$('totem_category').value, script_name:$('script_name').value }; }
+    function applyItem(resp){ const row = resp.item || resp; const pairs = {
+      entry:['entry'], name:['name_en'], locale_name:['name_zh'], description:['desc_en'], locale_description:['desc_zh'], displayid:['displayid'], class:['class_id'], subclass:['subclass'], Quality:['quality'], bonding:['bonding'], BuyCount:['buycount'], BuyPrice:['buyprice'], SellPrice:['sellprice'], itemlevel:['itemlevel'], maxcount:['maxcount'], stackable:['stackable'], MaxDurability:['maxdurability'], InventoryType:['inventorytype'], Material:['material'], Flags:['flags'], ContainerSlots:['container_slots'], itemset:['itemset'], sheath:['sheath'], lockid:['lock_id'], PageText:['page_text'], PageMaterial:['page_material'], LanguageID:['language_id'], AllowableClass:['allowableclass'], AllowableRace:['allowablerace'], RequiredLevel:['requiredlevel'], RequiredSkill:['required_skill'], RequiredSkillRank:['required_skill_rank'], requiredspell:['requiredspell'], requiredhonorrank:['requiredhonorrank'], RequiredCityRank:['required_city_rank'], RequiredReputationFaction:['required_reputation_faction'], RequiredReputationRank:['required_reputation_rank'], area:['area'], Map:['map'], stat_type1:['stat_type_1'], stat_value1:['stat_value_1'], stat_type2:['stat_type_2'], stat_value2:['stat_value_2'], stat_type3:['stat_type_3'], stat_value3:['stat_value_3'], stat_type4:['stat_type_4'], stat_value4:['stat_value_4'], stat_type5:['stat_type_5'], stat_value5:['stat_value_5'], armor:['armor'], delay:['delay'], block:['block'], holy_res:['holy_res'], fire_res:['fire_res'], nature_res:['nature_res'], frost_res:['frost_res'], shadow_res:['shadow_res'], arcane_res:['arcane_res'], spellid_1:['spellid_1'], spelltrigger_1:['spelltrigger_1'], spellcharges_1:['spellcharges_1'], spellid_2:['spellid_2'], spelltrigger_2:['spelltrigger_2'], spellcharges_2:['spellcharges_2'], spellid_3:['spellid_3'], spelltrigger_3:['spelltrigger_3'], spellcharges_3:['spellcharges_3'], spellid_4:['spellid_4'], spelltrigger_4:['spelltrigger_4'], spellcharges_4:['spellcharges_4'], socketColor_1:['socket_color_1'], socketColor_2:['socket_color_2'], socketColor_3:['socket_color_3'], socketBonus:['socket_bonus'], RandomProperty:['random_property'], RandomSuffix:['random_suffix'], BagFamily:['bag_family'], RangedModRange:['ranged_mod_range'], duration:['duration'], FlagsExtra:['flags_extra'], ammo_type:['ammo_type'], dmg_type1:['dmg_type1'], required_disenchant_skill:['required_disenchant_skill'], gem_properties:['gem_properties'], totem_category:['totem_category'], script_name:['script_name'] };
+      Object.entries(pairs).forEach(([k, ids]) => ids.forEach(id => { const el = $(id); if(el && row[k] !== undefined) el.value = row[k] || ''; })); }
+    async function loadConfig(){ try{ const r = await fetchJson('/api/config'); const c = r.config || {}; $('mode').value = c.mode || 'remote'; $('ssh_host').value = c.ssh?.host || ''; $('ssh_user').value = c.ssh?.user || ''; $('ssh_key_path').value = c.ssh?.keyPath || ''; $('db_host').value = c.db?.host || ''; $('db_port').value = c.db?.port || ''; $('db_user').value = c.db?.user || ''; $('db_password').value = c.db?.password || ''; $('db_name').value = c.db?.database || ''; $('saveConfig').checked = !!c.saveConfig; $('savePassword').checked = !!c.savePassword; status('配置已读取'); }catch(e){ status('读取配置失败: ' + e.message); } }
+    async function saveConfig(){ try{ await fetchJson('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(configBody())}); status('配置已保存'); }catch(e){ status('保存配置失败: ' + e.message); } }
+    async function testConn(){ try{ const r = await fetchJson('/api/test-conn',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(configBody())}); status('连接成功: ' + (r.result || 'OK')); }catch(e){ status('连接测试失败: ' + e.message); } }
+    async function loadItem(){ try{ const r = await fetchJson(`/api/item?entry=${encodeURIComponent($('entry').value)}`); applyItem(r); status('item 读取完成'); }catch(e){ status('读取 item 失败: ' + e.message); } }
+    async function saveItem(){ try{ await fetchJson('/api/save-item',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(itemBody())}); status('item 保存完成'); }catch(e){ status('保存 item 失败: ' + e.message); } }
+    async function saveLocale(){ try{ await fetchJson('/api/save-locale',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(itemBody())}); status('locale 保存完成'); }catch(e){ status('保存 locale 失败: ' + e.message); } }
+    $('loadConfigBtn').onclick = loadConfig; $('saveConfigBtn').onclick = saveConfig; $('testConnBtn').onclick = testConn; $('loadItemBtn').onclick = loadItem; $('saveItemBtn').onclick = saveItem; $('saveLocaleBtn').onclick = saveLocale; loadConfig();
+  </script>
+</body>
+</html>

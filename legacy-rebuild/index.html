@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WOWItemMaker Legacy Rebuild</title>
+  <style>
+    body{margin:0;background:#d4d0c8;font:12px Tahoma,Arial,sans-serif;color:#000}
+    .win{width:1280px;margin:10px auto;border:2px solid #808080;border-right-color:#fff;border-bottom-color:#fff;background:#d4d0c8}
+    .title{padding:6px 10px;background:#0a246a;color:#fff;font-weight:700}
+    fieldset{border:1px solid #808080;background:#d4d0c8;padding:8px;margin:8px}
+    legend{padding:0 4px}
+    button{height:24px;border:1px solid #808080;background:#d4d0c8;box-shadow:1px 1px 0 #fff inset,-1px -1px 0 #808080 inset;padding:0 8px;cursor:pointer}
+    input,select,textarea{border:1px solid #7f9db9;background:#fff;padding:3px 4px;font:12px Tahoma,Arial,sans-serif}
+    textarea{min-height:28px;height:28px;resize:vertical}
+    .row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .tabbar,.subtabbar{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px}
+    .tabbar button.active,.subtabbar button.active{background:#fff;box-shadow:none}
+    .panel{border:1px solid #808080;background:#efefef;padding:8px}
+    .hidden{display:none}
+    .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+    .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+    .grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+    .field{display:flex;flex-direction:column;gap:3px}
+    .wide{grid-column:span 2}.full{grid-column:1/-1}
+    .spell5{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+    .stack{display:flex;flex-direction:column;gap:8px}
+  </style>
+</head>
+<body>
+<div class="win">
+  <div class="title">WOWItemMaker Legacy Rebuild</div>
+
+  <fieldset>
+    <legend>数据库连接区（Connection）</legend>
+    <div class="row">
+      <div id="ConnStat">当前连接状态：wowitem@43.248.129.172 acore_world_test（3.3.5(TC2)）</div>
+      <button id="ShowSetConnBtn">数据库配置（DB Config）</button>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>物品信息（Item Info）</legend>
+    <div class="tabbar">
+      <button class="active" data-tab="tab1">基本信息（Basic 1）</button>
+      <button data-tab="tab7">基本信息（Basic 2）</button>
+      <button data-tab="tab3">使用条件（Requirements）</button>
+      <button data-tab="tab2">绿字属性（Stats）</button>
+      <button data-tab="tab4">战斗属性（Combat）</button>
+      <button data-tab="tab5">附带法术（Spells）</button>
+      <button data-tab="tab6">宝石插槽（Socket）</button>
+      <button data-tab="tab8">高级字段（Advanced）</button>
+      <button data-tab="tab12">基本信息（Basic 1）2</button>
+    </div>
+
+    <div class="panel tabpage" id="tab-tab1">
+      <div class="grid4">
+        <div class="field"><label>物品ID（Entry）</label><input id="EntryTextBox"></div>
+        <div class="field"><label>类别（Class）</label><select id="ItemClassList"></select></div>
+        <div class="field"><label>子类（SubClass）</label><select id="ItemSubClassList"></select></div>
+        <div class="field"><label>显示ID（DisplayID）</label><select id="DisplayIDList"></select></div>
+        <div class="field"><label>品质（Quality）</label><select id="QualityList"></select></div>
+        <div class="field"><label>购买数量（BuyCount）</label><input id="BuyCountTextBox"></div>
+        <div class="field"><label>买价（BuyPrice）</label><input id="BuyPriceTextBox"></div>
+        <div class="field"><label>卖价（SellPrice）</label><input id="SellPriceTextBox"></div>
+        <div class="field"><label>物品等级（ItemLevel）</label><input id="ItemLevelTextBox"></div>
+        <div class="field"><label>最大拥有（MaxCount）</label><input id="maxcountTextBox"></div>
+        <div class="field"><label>堆叠（Stackable）</label><input id="StackAbleTextBox"></div>
+        <div class="field"><label>绑定（Bonding）</label><select id="BondingList"></select></div>
+        <div class="field"><label>最大耐久（MaxDurability）</label><input id="MaxDurabilityTextBox"></div>
+        <div class="field wide"><label>物品名称（Name）</label><textarea id="RTB_ItemName"></textarea></div>
+        <div class="field"><label>名称颜色（Name Color）</label><button id="Btn_NameColor">颜色</button></div>
+      </div>
+    </div>
+
+    <div class="panel tabpage hidden" id="tab-tab7">
+      <div class="grid4">
+        <div class="field wide"><label>物品描述（Description）</label><textarea id="RTB_Description"></textarea></div>
+        <div class="field"><label>描述颜色（Description Color）</label><button id="Btn_DcpColor">颜色</button></div>
+        <div class="field"><label>标记（Flags）</label><select id="FlagsList"></select></div>
+        <div class="field"><label>弹药类型（Ammo Type）</label><select id="Ammo_TypeList"></select></div>
+        <div class="field"><label>属性总数（StatsCount）</label><select id="StatsCountList"></select></div>
+        <div class="field"><label>容器格数（ContainerSlots）</label><input id="ContainerSlotsTextBox"></div>
+        <div class="field"><label>装备位（InventoryType）</label><select id="InventoryTypeList"></select></div>
+        <div class="field"><label>套装（ItemSet）</label><input id="ItemSetTextBox"></div>
+        <div class="field"><label>武器鞘位（Sheath）</label><select id="SheathList"></select></div>
+        <div class="field"><label>材质（Material）</label><select id="MaterialList"></select></div>
+        <div class="field"><label>锁ID（LockID）</label><input id="LockIdTextBox"></div>
+        <div class="field"><label>起始任务（StartQuest）</label><input id="StartQuestTextBox"></div>
+        <div class="field"><label>页面材质（PageMaterial）</label><input id="PageMeterialTextBox"></div>
+        <div class="field"><label>语言ID（LanguageID）</label><input id="LanguageIDTextBox"></div>
+        <div class="field"><label>页面文本（PageText）</label><input id="PageTextTextBox"></div>
+      </div>
+    </div>
+
+    <div class="panel tabpage hidden" id="tab-tab3">
+      <div class="grid4">
+        <div class="field"><label>AllowableClassList（职业限制）</label><input id="AllowableClassList"></div>
+        <div class="field"><label>AllowableRaceList（种族限制）</label><input id="AllowableRaceList"></div>
+        <div class="field"><label>RequiredLevelTextBox（需求等级）</label><input id="RequiredLevelTextBox"></div>
+        <div class="field"><label>RequiredSkillTextBox（需求技能）</label><input id="RequiredSkillTextBox"></div>
+        <div class="field"><label>RequiredSkillRankTextBox（需求技能等级）</label><input id="RequiredSkillRankTextBox"></div>
+        <div class="field"><label>RequiredSpellTextBox（需求法术）</label><input id="RequiredSpellTextBox"></div>
+        <div class="field"><label>RequiredHonnorRankTextBox（荣誉等级）</label><input id="RequiredHonnorRankTextBox"></div>
+        <div class="field"><label>RequiredCityRankTextBox（城市等级）</label><input id="RequiredCityRankTextBox"></div>
+        <div class="field"><label>RequiredReputationFactionTextBox（声望阵营）</label><input id="RequiredReputationFactionTextBox"></div>
+        <div class="field"><label>RequiredReputationRankTextBox（声望等级）</label><input id="RequiredReputationRankTextBox"></div>
+        <div class="field"><label>AreaList（区域）</label><select id="AreaList"></select></div>
+        <div class="field"><label>MapList（地图）</label><select id="MapList"></select></div>
+      </div>
+    </div>
+
+    <div class="panel tabpage hidden" id="tab-tab2">
+      <div class="grid4">
+        <div class="field"><label>Stat_Type1List</label><input></div><div class="field"><label>Stat_Value1TextBox</label><input></div>
+        <div class="field"><label>Stat_Type2List</label><input></div><div class="field"><label>Stat_Value2TextBox</label><input></div>
+        <div class="field"><label>Stat_Type3List</label><input></div><div class="field"><label>Stat_Value3TextBox</label><input></div>
+        <div class="field"><label>Stat_Type4List</label><input></div><div class="field"><label>Stat_Value4TextBox</label><input></div>
+        <div class="field"><label>Stat_Type5List</label><input></div><div class="field"><label>Stat_Value5TextBox</label><input></div>
+        <div class="field"><label>Stat_Type6List</label><input></div><div class="field"><label>Stat_Value6TextBox</label><input></div>
+        <div class="field"><label>Stat_Type7List</label><input></div><div class="field"><label>Stat_Value7TextBox</label><input></div>
+        <div class="field"><label>Stat_Type8List</label><input></div><div class="field"><label>Stat_Value8TextBox</label><input></div>
+        <div class="field"><label>Stat_Type9List</label><input></div><div class="field"><label>Stat_Value9TextBox</label><input></div>
+        <div class="field"><label>Stat_Type10List</label><input></div><div class="field"><label>Stat_Value10TextBox</label><input></div>
+      </div>
+    </div>
+
+    <div class="panel tabpage hidden" id="tab-tab4">
+      <div class="stack">
+        <fieldset><legend>伤害区（Damage）</legend><div class="grid3">
+          <div class="field"><label>dmg_min1TextBox</label><input></div><div class="field"><label>dmg_max1TextBox</label><input></div><div class="field"><label>dmg_type1List</label><input></div>
+          <div class="field"><label>dmg_min2TextBox</label><input></div><div class="field"><label>dmg_max2TextBox</label><input></div><div class="field"><label>dmg_type2List</label><input></div>
+          <div class="field"><label>dmg_min3TextBox</label><input></div><div class="field"><label>dmg_max3TextBox</label><input></div><div class="field"><label>dmg_type3List</label><input></div>
+          <div class="field"><label>dmg_min4TextBox</label><input></div><div class="field"><label>dmg_max4TextBox</label><input></div><div class="field"><label>dmg_type4List</label><input></div>
+          <div class="field"><label>dmg_min5TextBox</label><input></div><div class="field"><label>dmg_max5TextBox</label><input></div><div class="field"><label>dmg_type5List</label><input></div>
+        </div></fieldset>
+        <fieldset><legend>抗性区（Resist）</legend><div class="grid3">
+          <div class="field"><label>holy_resTextBox</label><input></div><div class="field"><label>fire_resTextBox</label><input></div><div class="field"><label>nature_resTextBox</label><input></div>
+          <div class="field"><label>frost_resTextBox</label><input></div><div class="field"><label>shadow_resTextBox</label><input></div><div class="field"><label>arcane_resTextBox</label><input></div>
+        </div></fieldset>
+        <fieldset><legend>基础战斗（Basic Combat）</legend><div class="grid3">
+          <div class="field"><label>armorTextBox</label><input></div><div class="field"><label>delayTextBox</label><input></div><div class="field"><label>blockTextBox</label><input></div>
+        </div></fieldset>
+      </div>
+    </div>
+
+    <div class="panel tabpage hidden" id="tab-tab5">
+      <div class="grid4">
+        <div class="field"><label>spellid_1List</label><select id="spellid_1List"></select></div><div class="field"><label>spelltrigger_1List</label><select id="spelltrigger_1List"></select></div><div class="field"><label>spellcooldown_1TextBox</label><input></div><div class="field"><label>spellid_2List</label><select id="spellid_2List"></select></div>
+        <div class="field"><label>spelltrigger_2List</label><select id="spelltrigger_2List"></select></div><div class="field"><label>spellcooldown_2TextBox</label><input></div><div class="field"><label>spellid_3List</label><select id="spellid_3List"></select></div><div class="field"><label>spelltrigger_3List</label><select id="spelltrigger_3List"></select></div>
+        <div class="field"><label>spellcooldown_3TextBox</label><input></div><div class="field"><label>spellid_4List</label><select id="spellid_4List"></select></div><div class="field"><label>spelltrigger_4List</label><select id="spelltrigger_4List"></select></div><div class="field"><label>spellcooldown_4TextBox</label><input></div>
+        <div class="field"><label>spellid_5List</label><select id="spellid_5List"></select></div><div class="field"><label>spelltrigger_5List</label><select id="spelltrigger_5List"></select></div><div class="field"><label>spellcooldown_5TextBox</label><input></div>
+      </div>
+    </div>
+
+    <div class="panel tabpage hidden" id="tab-tab6">
+      <div class="grid4">
+        <div class="field"><label>SocketColor_1List</label><select id="SocketColor_1List"></select></div>
+        <div class="field"><label>SocketColor_2List</label><select id="SocketColor_2List"></select></div>
+        <div class="field"><label>SocketColor_3List</label><select id="SocketColor_3List"></select></div>
+        <div class="field"><label>SocketBonusList</label><select id="SocketBonusList"></select></div>
+      </div>
+    </div>
+
+    <div class="panel tabpage hidden" id="tab-tab8">
+      <div class="grid4">
+        <div class="field"><label>FactionTextBox / label1位</label><input id="FactionTextBox"></div>
+        <div class="field"><label>HolidayIDTextBox</label><input id="HolidayIDTextBox"></div>
+        <div class="field"><label>SocketContent_1TextBox</label><input></div>
+        <div class="field"><label>SocketContent_2TextBox</label><input></div>
+        <div class="field"><label>SocketContent_3TextBox</label><input></div>
+        <div class="field"><label>SpellCategory_1TextBox</label><input></div><div class="field"><label>SpellCategory_2TextBox</label><input></div><div class="field"><label>SpellCategory_3TextBox</label><input></div><div class="field"><label>SpellCategory_4TextBox</label><input></div><div class="field"><label>SpellCategory_5TextBox</label><input></div>
+        <div class="field"><label>SpellCategoryCooldown_1TextBox</label><input></div><div class="field"><label>SpellCategoryCooldown_2TextBox</label><input></div><div class="field"><label>SpellCategoryCooldown_3TextBox</label><input></div><div class="field"><label>SpellCategoryCooldown_4TextBox</label><input></div><div class="field"><label>SpellCategoryCooldown_5TextBox</label><input></div>
+        <div class="field"><label>SpellppmRate_1TextBox</label><input></div><div class="field"><label>SpellppmRate_2TextBox</label><input></div><div class="field"><label>SpellppmRate_3TextBox</label><input></div><div class="field"><label>SpellppmRate_4TextBox</label><input></div><div class="field"><label>SpellppmRate_5TextBox</label><input></div>
+        <div class="field"><label>SpellCharges_1TextBox</label><input></div><div class="field"><label>SpellCharges_2TextBox</label><input></div><div class="field"><label>SpellCharges_3TextBox</label><input></div><div class="field"><label>SpellCharges_4TextBox</label><input></div><div class="field"><label>SpellCharges_5TextBox</label><input></div>
+        <div class="field"><label>unk0TextBox</label><input></div>
+        <div class="field"><label>MaxMoneyLootTextBox</label><input></div>
+        <div class="field"><label>MinMoneyLootTextBox</label><input></div>
+        <div class="field"><label>FoodTypeTextBox</label><input></div>
+        <div class="field"><label>DisenchantIDTextBox</label><input></div>
+        <div class="field"><label>ScriptNameTextBox</label><input></div>
+        <div class="field"><label>ItemLimitCategoryTextBox</label><input></div>
+        <div class="field"><label>DurationTextBox</label><input></div>
+        <div class="field"><label>ArmorDamageModifierTextBox</label><input></div>
+      </div>
+    </div>
+
+    <div class="panel tabpage hidden" id="tab-tab12">
+      <div class="grid4">
+        <div class="field"><label>RandomPropertyList</label><select id="RandomPropertyList"></select></div>
+        <div class="field"><label>RandomSuffixList</label><select id="RandomSuffixList"></select></div>
+        <div class="field"><label>BagFamilyTextBox</label><input></div>
+        <div class="field"><label>RangedModRangeTextBox</label><input></div>
+        <div class="field"><label>ScalingStatValueTextBox</label><input></div>
+        <div class="field"><label>ScalingStatDistributionTextBox</label><input></div>
+        <div class="field"><label>RequiredDisenchantSkillTextBox</label><input></div>
+        <div class="field"><label>GemPropertiesTextBox</label><input></div>
+        <div class="field"><label>TotemCategoryTextBox</label><input></div>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>动作区（Actions）</legend>
+    <div class="subtabbar">
+      <button class="active" data-actiontab="action9">tabPage9</button>
+      <button data-actiontab="action10">基本信息（Basic 1）0</button>
+      <button data-actiontab="action11">基本信息（Basic 1）1</button>
+      <button data-actiontab="action13">基本信息（Basic 1）3</button>
+    </div>
+    <div class="panel actionpage" id="action-action9"><button id="导出新建SQL">导出新建SQL</button><button id="写入数据库">写入数据库</button></div>
+    <div class="panel actionpage hidden" id="action-action10"><button id="导出编辑SQL">导出编辑SQL</button><button id="保存物品">保存物品</button><button id="读取物品">读取物品</button></div>
+    <div class="panel actionpage hidden" id="action-action11"><button id="导出删除SQL">导出删除SQL</button><button id="删除物品">删除物品</button></div>
+    <div class="panel actionpage hidden" id="action-action13"><button id="问号补丁">问号补丁</button><button id="物品搜索">物品搜索</button><button id="执行SQL">执行SQL</button></div>
+  </fieldset>
+</div>
+<script>
+const $ = id => document.getElementById(id);
+function fillSelect(id, arr){ const el=$(id); if(!el) return; el.innerHTML=''; for(const x of arr){ const o=document.createElement('option'); o.textContent=x; o.value=x; el.appendChild(o);} }
+async function loadDicts(){ const r=await fetch('/api/dicts'); const j=await r.json(); const d=j.dicts||{}; fillSelect('ItemClassList', d.class||[]); fillSelect('ItemSubClassList', d.subclass0||[]); fillSelect('DisplayIDList', d.displayid||[]); fillSelect('QualityList', d.quality||[]); fillSelect('BondingList', d.bonding||[]); fillSelect('FlagsList', d.flags||[]); fillSelect('Ammo_TypeList', d.ammo_type||[]); fillSelect('StatsCountList', d.stats_count||[]); fillSelect('InventoryTypeList', d.inventory_type||[]); fillSelect('SheathList', d.sheath||[]); fillSelect('MaterialList', d.material||[]); fillSelect('AreaList', d.area||[]); fillSelect('MapList', d.map||[]); for (const id of ['spellid_1List','spellid_2List','spellid_3List','spellid_4List','spellid_5List']) fillSelect(id, d.spellid||[]); for (const id of ['spelltrigger_1List','spelltrigger_2List','spelltrigger_3List','spelltrigger_4List','spelltrigger_5List']) fillSelect(id, d.spelltrigger||[]); for (const id of ['SocketColor_1List','SocketColor_2List','SocketColor_3List']) fillSelect(id, d.socketColor||[]); fillSelect('SocketBonusList', d.socketBonus||[]); fillSelect('RandomPropertyList', d.randomProperty||[]); fillSelect('RandomSuffixList', d.randomSuffix||[]); }
+function showTab(name){ document.querySelectorAll('.tabpage').forEach(x=>x.classList.add('hidden')); document.querySelectorAll('.tabbar button').forEach(x=>x.classList.remove('active')); $('tab-'+name).classList.remove('hidden'); document.querySelector(`[data-tab="${name}"]`).classList.add('active'); }
+function showActionTab(name){ document.querySelectorAll('.actionpage').forEach(x=>x.classList.add('hidden')); document.querySelectorAll('.subtabbar button').forEach(x=>x.classList.remove('active')); $('action-'+name).classList.remove('hidden'); document.querySelector(`[data-actiontab="${name}"]`).classList.add('active'); }
+document.querySelectorAll('.tabbar button').forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
+document.querySelectorAll('.subtabbar button').forEach(b=>b.onclick=()=>showActionTab(b.dataset.actiontab));
+loadDicts();
+</script>
+</body>
+</html>

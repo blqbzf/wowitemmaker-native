@@ -1,0 +1,134 @@
+name: Build Native Desktop App
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller pymysql PyQt5
+
+    - name: Build macOS app
+      run: |
+        pyinstaller --clean --noconfirm native.spec
+
+    - name: Create ZIP (macOS)
+      run: |
+        cd dist
+        zip -r ../WOWItemMaker-macos-native.zip WOWItemMaker
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: WOWItemMaker-macos-native
+        path: WOWItemMaker-macos-native.zip
+
+  build-windows:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller pymysql PyQt5
+
+    - name: Build Windows app
+      run: |
+        pyinstaller --clean --noconfirm native.spec
+
+    - name: Create ZIP (Windows)
+      run: |
+        cd dist
+        7z a -tzip ../WOWItemMaker-windows-native.zip WOWItemMaker.exe
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: WOWItemMaker-windows-native
+        path: WOWItemMaker-windows-native.zip
+
+  release:
+    needs: [build-macos, build-windows]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+
+    steps:
+    - name: Download macOS artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: WOWItemMaker-macos-native
+        path: ./artifacts/
+
+    - name: Download Windows artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: WOWItemMaker-windows-native
+        path: ./artifacts/
+
+    - name: Create Release
+      run: |
+        gh release create v2.0.0-native \
+          ./artifacts/WOWItemMaker-macos-native.zip \
+          ./artifacts/WOWItemMaker-windows-native.zip \
+          --title "WOWItemMaker v2.0 原生桌面版" \
+          --notes "🚀 真正的原生桌面应用！
+
+          ## ✨ 特性
+          - ✅ 纯PyQt5原生控件
+          - ✅ 不使用浏览器
+          - ✅ 独立窗口应用
+          - ✅ 跨平台支持
+
+          ## 📦 下载
+          - **macOS**: WOWItemMaker-macos-native.zip
+          - **Windows**: WOWItemMaker-windows-native.zip
+
+          ## 🎯 功能
+          - 读取/编辑/删除物品
+          - 自动填充字段
+          - 中英文支持
+          - SQL生成和复制
+          - 数据库测试
+          - 测试服/正式服切换
+
+          ## 🖥️ 界面
+          - 原生UI控件
+          - 选项卡布局
+          - 分组字段
+          - 环境状态显示
+
+          ## 📋 使用方法
+          ### macOS
+          1. 解压下载的文件
+          2. 双击WOWItemMaker运行
+
+          ### Windows
+          1. 解压下载的文件
+          2. 双击WOWItemMaker.exe运行
+
+          ---
+
+          © 2026 诺兰时光魔兽" || echo "Release already exists"
