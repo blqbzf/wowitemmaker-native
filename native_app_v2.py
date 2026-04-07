@@ -7,8 +7,6 @@
 
 import sys
 import json
-import csv
-import struct
 import subprocess
 from pathlib import Path
 from PyQt5.QtCore import Qt, pyqtSignal
@@ -16,11 +14,13 @@ from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QLabel, QLineEdit, QPushButton, QComboBox, QTextEdit, QGroupBox,
     QGridLayout, QMessageBox, QSplitter, QFrame, QScrollArea, QTabWidget,
-    QFileDialog, QDialog, QFormLayout, QListWidget, QListWidgetItem
+    QFileDialog, QDialog, QFormLayout, QListWidget, QListWidgetItem, QProgressDialog
 )
 from PyQt5.QtGui import QFont, QIcon
 
 import pymysql
+import csv
+import struct
 
 
 class CloneItemDialog(QDialog):
@@ -133,7 +133,7 @@ class SearchItemDialog(QDialog):
             conn.close()
             
         except Exception as e:
-            QMessageBox.critical(self, "错误", f"搜索失败：{e}")
+            QMessageBox.critical(self, "错误", f"搜索失败： {e}")
     
     def select_item(self):
         current = self.results.currentItem()
@@ -170,9 +170,6 @@ class WOWItemMakerWindow(QMainWindow):
         
         # 创建界面
         self.create_ui()
-        
-        # 加载数据字典
-        self.load_dicts()
     
     def create_ui(self):
         """创建界面"""
@@ -184,21 +181,21 @@ class WOWItemMakerWindow(QMainWindow):
         top_frame = self.create_top_panel()
         main_layout.addWidget(top_frame)
         
-        # 中间：分割器
+        # 中间:分割器
         splitter = QSplitter(Qt.Horizontal)
         
-        # 左侧：物品基本字段
+        # 左侧:物品基本字段
         left_panel = self.create_left_panel()
         splitter.addWidget(left_panel)
         
-        # 右侧：物品详细字段（选项卡）
+        # 右侧:物品详细字段(选项卡)
         right_panel = self.create_right_panel()
         splitter.addWidget(right_panel)
         
         splitter.setSizes([600, 800])
         main_layout.addWidget(splitter)
         
-        # 底部：操作按钮
+        # 底部:操作按钮
         bottom_frame = self.create_bottom_panel()
         main_layout.addWidget(bottom_frame)
     
@@ -209,14 +206,14 @@ class WOWItemMakerWindow(QMainWindow):
         layout = QHBoxLayout(frame)
         
         # 数据库选择
-        layout.addWidget(QLabel("数据库："))
+        layout.addWidget(QLabel("数据库:"))
         self.db_combo = QComboBox()
-        self.db_combo.addItems(["acore_world_test（测试服）", "acore_world（正式服）"])
+        self.db_combo.addItems(["acore_world_test(测试服)", "acore_world(正式服)"])
         self.db_combo.currentIndexChanged.connect(self.on_db_changed)
         layout.addWidget(self.db_combo)
         
         # 环境状态
-        self.status_label = QLabel("状态：测试服")
+        self.status_label = QLabel("状态:测试服")
         self.status_label.setStyleSheet("color: green; font-weight: bold;")
         layout.addWidget(self.status_label)
         
@@ -230,7 +227,7 @@ class WOWItemMakerWindow(QMainWindow):
         return frame
     
     def create_left_panel(self):
-        """创建左侧面板：基本字段"""
+        """创建左侧面板:基本字段"""
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         
@@ -265,10 +262,10 @@ class WOWItemMakerWindow(QMainWindow):
         
         row = 0
         for label, field, width in [
-            ("名称（英文）", "name_en", 300),
-            ("名称（中文）", "name_zh", 300),
-            ("描述（英文）", "desc_en", 300),
-            ("描述（中文）", "desc_zh", 300),
+            ("名称(英文)", "name_en", 300),
+            ("名称(中文)", "name_zh", 300),
+            ("描述(英文)", "desc_en", 300),
+            ("描述(中文)", "desc_zh", 300),
             ("显示ID", "displayid", 100),
             ("物品等级", "itemlevel", 80),
             ("RequiredLevel", "requiredlevel", 80),
@@ -325,10 +322,10 @@ class WOWItemMakerWindow(QMainWindow):
         return scroll
     
     def create_right_panel(self):
-        """创建右侧面板：详细字段（选项卡）"""
+        """创建右侧面板:详细字段(选项卡)"""
         tabs = QTabWidget()
         
-        # 选项卡1：属性
+        # 选项卡1:属性
         stats_tab = QWidget()
         stats_layout = QGridLayout(stats_tab)
         
@@ -349,7 +346,7 @@ class WOWItemMakerWindow(QMainWindow):
         
         tabs.addTab(stats_tab, "属性")
         
-        # 选项卡2：法术效果
+        # 选项卡2:法术效果
         spells_tab = QWidget()
         spells_layout = QGridLayout(spells_tab)
         
@@ -367,7 +364,7 @@ class WOWItemMakerWindow(QMainWindow):
         
         tabs.addTab(spells_tab, "法术")
         
-        # 选项卡3：要求
+        # 选项卡3:要求
         req_tab = QWidget()
         req_layout = QGridLayout(req_tab)
         
@@ -392,15 +389,15 @@ class WOWItemMakerWindow(QMainWindow):
         
         tabs.addTab(req_tab, "要求")
         
-        # 选项卡4：SQL和补丁
+        # 选项卡4:SQL和补丁
         sql_tab = QWidget()
         sql_layout = QVBoxLayout(sql_tab)
         
         # SQL预览
-        sql_layout.addWidget(QLabel("SQL语句预览："))
+        sql_layout.addWidget(QLabel("SQL语句预览:"))
         self.sql_text = QTextEdit()
         self.sql_text.setFont(QFont("Monaco", 10))
-        self.sql_layout = sql_layout.addWidget(self.sql_text)
+        sql_layout.addWidget(self.sql_text)
         
         # SQL操作按钮
         btn_layout = QHBoxLayout()
@@ -477,22 +474,15 @@ class WOWItemMakerWindow(QMainWindow):
         
         return frame
     
-    def load_dicts(self):
-        """加载数据字典"""
-        dict_path = Path(__file__).parent / "wowitemmaker-data-dicts.json"
-        if dict_path.exists():
-            with open(dict_path, 'r', encoding='utf-8') as f:
-                self.dicts = json.load(f)
-    
     def on_db_changed(self, index):
         """数据库切换"""
         if index == 0:
             self.config['database'] = 'acore_world_test'
-            self.status_label.setText("状态：测试服")
+            self.status_label.setText("状态:测试服")
             self.status_label.setStyleSheet("color: green; font-weight: bold;")
         else:
             self.config['database'] = 'acore_world'
-            self.status_label.setText("状态：正式服")
+            self.status_label.setText("状态:正式服")
             self.status_label.setStyleSheet("color: red; font-weight: bold;")
         
         self.update_env_info()
@@ -510,9 +500,9 @@ class WOWItemMakerWindow(QMainWindow):
         try:
             conn = pymysql.connect(**self.config, connect_timeout=5)
             conn.close()
-            QMessageBox.information(self, "成功", "数据库连接成功！")
+            QMessageBox.information(self, "成功", "数据库连接成功!")
         except Exception as e:
-            QMessageBox.critical(self, "失败", f"连接失败：{e}")
+            QMessageBox.critical(self, "失败", f"连接失败: {e}")
     
     def get_field_value(self, field_name):
         """获取字段值"""
@@ -589,7 +579,7 @@ class WOWItemMakerWindow(QMainWindow):
             QMessageBox.information(self, "成功", f"物品 {entry} 读取成功")
             
         except Exception as e:
-            QMessageBox.critical(self, "错误", f"读取失败：{e}")
+            QMessageBox.critical(self, "错误", f"读取失败: {e}")
     
     def save_item(self):
         """保存物品"""
@@ -661,7 +651,7 @@ class WOWItemMakerWindow(QMainWindow):
             QMessageBox.information(self, "成功", f"物品 {entry} 保存成功")
             
         except Exception as e:
-            QMessageBox.critical(self, "错误", f"保存失败：{e}")
+            QMessageBox.critical(self, "错误", f"保存失败: {e}")
     
     def delete_item(self):
         """删除物品"""
@@ -672,7 +662,7 @@ class WOWItemMakerWindow(QMainWindow):
         
         reply = QMessageBox.question(
             self, "确认删除",
-            f"确定要删除物品 {entry} 吗？\n此操作不可恢复！",
+            f"确定要删除物品 {entry} 吗?\n此操作不可恢复!",
             QMessageBox.Yes | QMessageBox.No, QMessageBox.No
         )
         
@@ -690,7 +680,7 @@ class WOWItemMakerWindow(QMainWindow):
             QMessageBox.information(self, "成功", f"物品 {entry} 已删除")
             
         except Exception as e:
-            QMessageBox.critical(self, "错误", f"删除失败：{e}")
+            QMessageBox.critical(self, "错误", f"删除失败: {e}")
     
     def generate_sql(self, sql_type):
         """生成SQL"""
@@ -728,7 +718,7 @@ WHERE entry={entry};"""
         
         reply = QMessageBox.question(
             self, "确认执行",
-            f"确定要执行以下SQL吗？\n\n{sql[:200]}...",
+            f"确定要执行以下SQL吗?\n\n{sql[:200]}...",
             QMessageBox.Yes | QMessageBox.No, QMessageBox.No
         )
         
@@ -743,10 +733,10 @@ WHERE entry={entry};"""
                 affected = cur.rowcount
             
             conn.close()
-            QMessageBox.information(self, "成功", f"SQL执行成功\n影响行数：{affected}")
+            QMessageBox.information(self, "成功", f"SQL执行成功\n影响行数: {affected}")
             
         except Exception as e:
-            QMessageBox.critical(self, "错误", f"执行失败：{e}")
+            QMessageBox.critical(self, "错误", f"执行失败: {e}")
     
     def clone_item(self):
         """套用物品"""
@@ -798,7 +788,7 @@ WHERE entry={entry};"""
                 self.load_item()
                 
             except Exception as e:
-                QMessageBox.critical(self, "错误", f"复制失败：{e}")
+                QMessageBox.critical(self, "错误", f"复制失败: {e}")
     
     def search_item(self):
         """搜索物品"""
@@ -813,7 +803,42 @@ WHERE entry={entry};"""
     
     def generate_patch(self):
         """生成问号补丁"""
-        QMessageBox.information(self, "提示", "问号补丁生成功能开发中...\n\n请暂时使用网页工具生成补丁")
+        try:
+            # 导入补丁生成器
+            import itemdbc_mpq_builder as builder
+            
+            # 生成CSV
+            csv_path = Path('item_patch_temp.csv')
+            conn = pymysql.connect(**self.config)
+            with conn.cursor() as cur:
+                cur.execute("""SELECT entry,class,subclass,SoundOverrideSubclass,material,displayid,InventoryType,sheath 
+                    FROM item_template 
+                    WHERE entry >= 910000""")
+                rows = cur.fetchall()
+            
+            with csv_path.open('w', encoding='utf-8', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerows(rows)
+            
+            # 生成Item.dbc
+            base_dbc = Path(__file__).parent / 'data' / 'Item.dbc'
+            export_dbc = Path('item_patch_temp') / 'Item_patch.dbc'
+            
+            builder.merge_item_dbc(base_dbc, csv_path, export_dbc)
+            
+            # 清理临时文件
+            csv_path.unlink()
+            
+            size_kb = export_dbc.stat() // 1024
+            
+            QMessageBox.information(self, "成功", 
+                f"问号补丁已生成: {export_dbc}\n"
+                f"大小: {size_kb} KB\n\n"
+                f"可以打开文件管理器查看补丁文件。"
+            )
+        
+        except Exception as e:
+            QMessageBox.critical(self, "错误", f"生成补丁失败: {e}")
     
     def push_patch(self):
         """推送补丁"""
@@ -823,16 +848,50 @@ WHERE entry={entry};"""
         
         reply = QMessageBox.question(
             self, "确认推送",
-            f"确定要推送到 {env_name} 吗？\n\n"
-            f"数据库：{db}\n"
-            f"目标目录：/patches/{env}/",
+            f"确定要推送到 {env_name} 吗?\n\n"
+            f"数据库: {db}\n"
+            f"目标目录: /patches/{env}/",
             QMessageBox.Yes | QMessageBox.No, QMessageBox.No
         )
         
         if reply != QMessageBox.Yes:
             return
         
-        QMessageBox.information(self, "提示", "补丁推送功能开发中...\n\n请暂时使用网页工具推送补丁")
+        try:
+            # 生成补丁
+            self.generate_patch()
+            
+            # 推送到服务器
+            patch_file = Path('item_patch_temp/Item_patch.dbc')
+            if not patch_file.exists():
+                raise Exception("补丁文件不存在")
+            
+            # SCP上传
+            ssh_key = '/Users/mac/Desktop/cd.pem'
+            remote_path = f'/www/wwwroot/wow/patches/{env}/Item_patch.dbc'
+            
+            cmd = [
+                'scp',
+                '-i', ssh_key,
+                '-o', 'StrictHostKeyChecking=no',
+                str(patch_file),
+                f'root@43.248.129.172:{remote_path}'
+            ]
+            
+            result = subprocess.run(cmd, capture_output=True, text=True)
+            
+            if result.returncode != 0:
+                raise Exception(f"SCP上传失败: {result.stderr}")
+            
+            QMessageBox.information(
+                self, "成功",
+                f"补丁已推送到 {env_name}!\n\n"
+                f"文件: {remote_path}\n"
+                f"环境: {env_name}"
+            )
+            
+        except Exception as e:
+            QMessageBox.critical(self, "错误", f"推送补丁失败: {e}")
 
 
 def main():
