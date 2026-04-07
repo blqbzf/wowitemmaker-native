@@ -24,20 +24,20 @@ CONFIG_FILE = Path(__file__).parent / 'conninfo.json'
 CHINESE_FONT = QFont("PingFang SC", 12)  # 字体增大到12
 UI_FONT = QFont("SF Pro Display", 12)
 
-# 下拉菜单选项定义
+# 下拉菜单选项定义（根据旧WOWItemMaker真实数据）
 COMBO_OPTIONS = {
-    'Quality': ["0-垃圾Gray", "1-普通White", "2-优秀Green", "3-精良Blue", "4-史诗Purple", "5-传说Orange", "6-神器Yellow", "7-传家宝Heirloom"],
-    'class': ["0-消耗品Consumable", "1-容器Container", "2-武器Weapon", "3-宝石Gem", "4-护甲Armor", "5-材料Reagent", "6-弹药Projectile", "7-商品Tradegoods", "8-配方Recipe", "9-钱币Money", "10-任务Quest", "11-钥匙Key", "12-永久Permanent", "13-垃圾Junk"],
-    'subclass': ["0-通用None", "1-斧Axe", "2-弓Bow", "3-枪Gun", "4-锤Mace", "5-杖Polearm", "6-剑Sword", "7-法杖Staff", "8-匕首Dagger", "9-拳套Fist", "10-盾Shield", "11-法杖Wand", "12-弩Crossbow", "13-魔杖Wand", "14-鱼竿Fishing"],
-    'bonding': ["0-不绑定None", "1-拾取绑定OnAcquire", "2-装备绑定OnEquip", "3-使用绑定OnUse", "4-任务Quest", "5-账号Account"],
-    'InventoryType': ["0-非装备None", "1-头部Head", "2-颈部Neck", "3-肩部Shoulders", "4-衬衫Shirt", "5-胸甲Chest", "6-腰带Waist", "7-腿部Legs", "8-脚Feet", "9-手腕Wrists", "10-手套Hands", "11-手指Finger", "12-饰品Trinket", "13-单手OneHand", "14-盾Shield", "15-弓Ranged", "16-背部Back", "17-双手TwoHand", "18-袋子Bag", "19-徽章Tabard", "20-法袍Robe", "21-主手MainHand", "22-副手OffHand", "23-箭Ammo", "24-子弹Quiver"],
-    'Material': ["0-无None", "1-金属Metal", "2-木材Wood", "3-液体Liquid", "4-珠宝Jewelry", "5-链甲Chain", "6-板甲Plate", "7-布甲Cloth", "8-皮革Leather"],
-    'sheath': ["0-无None", "1-大型盾牌LargeShield", "2-背包Bags", "3-法杖Staff", "4-盾牌Shield", "5-副手OffHand", "6-大型武器LargeWeapon", "7-中型武器MediumWeapon", "8-小型武器SmallWeapon", "9-弩Crossbow", "10-法杖Wand", "11-弓Bow"],
-    'stat_type1': ["0-无None", "1-力量Strength", "2-敏捷Agility", "3-耐力Stamina", "4-智力Intellect", "5-精神Spirit", "6-攻击强度AttackPower", "7-法术强度SpellPower", "18-护甲穿透ArmorPen", "19-格挡BlockRating", "20-精准DodgeRating", "21-躲闪ParryRating", "22-招架DefenseSkill", "23-五秒回蓝ManaRegen", "24-法术穿透SpellPen"],
-    'dmg_type1': ["0-物理Physical", "1-神圣Holy", "2-火焰Fire", "3-自然Nature", "4-冰霜Frost", "5-暗影Shadow", "6-奥术Arcane"],
-    'spelltrigger_1': ["0-使用OnUse", "1-装备OnEquip", "2-被动Passive", "3-击中OnHit", "4-使用无消耗OnUseNoCharge", "5-使用失败OnFail"],
-    'socketColor_1': ["0-无None", "1-红色Red", "2-黄色Yellow", "4-蓝色Blue", "8-多彩Meta", "14-棱镜Prismatic"],
-    'BagFamily': ["0-无None", "1-箭袋Quiver", "2-弹药袋AmmoPouch", "3-灵魂碎片袋SoulShard", "4-皮革袋Leatherworking", "5-草药袋Herbalism", "6-附魔袋Enchanting", "7-工程袋Engineering", "8-钥匙袋Keyring", "9-宝石袋Gems", "10-矿石袋Mining", "11-暗月卡片DarkmoonCards", "12-垃圾Junk"],
+    'Quality': ["0-灰色", "1-白色", "2-绿色", "3-蓝色", "4-紫色", "5-橙色", "6-红色"],
+    'class': ["0-消耗品", "1-容器", "2-武器", "3-宝石", "4-护甲", "5-材料", "6-弹药", "7-商品", "8-配方", "9-钱币", "10-任务物品", "11-钥匙", "12-永久", "13-垃圾"],
+    'subclass': ["0-无", "1-斧", "2-弓", "3-枪", "4-锤", "5-长柄", "6-剑", "7-法杖", "8-匕首", "9-拳套", "10-盾牌", "11-魔杖", "12-弩", "13-投掷", "14-鱼竿"],
+    'bonding': ["0-不绑定", "1-拾取绑定", "2-装备绑定", "3-使用绑定", "4-任务物品", "5-账号绑定"],
+    'InventoryType': ["0-无", "1-头", "2-脖子", "3-肩膀", "4-衬衣", "5-胸", "6-腰带", "7-腿", "8-脚", "9-手腕", "10-手套", "11-手指", "12-饰品", "13-单手", "14-盾牌", "15-弓", "16-披风", "17-双手", "18-包", "19-战袍", "20-法衣", "21-主手", "22-副手", "23-箭", "24-子弹"],
+    'Material': ["-1-消费品", "1-金属", "2-木制品", "3-液体", "4-珠宝", "5-锁甲", "6-板甲", "7-布甲", "8-皮革"],
+    'sheath': ["0-无", "1-大型盾牌", "2-背包", "3-法杖", "4-盾牌", "5-副手", "6-大型武器", "7-中型武器", "8-小型武器", "9-弩", "10-魔杖", "11-弓"],
+    'stat_type1': ["0-无", "1-力量", "2-敏捷", "3-耐力", "4-智力", "5-精神", "6-攻击强度", "7-法术强度", "18-护甲穿透", "19-格挡等级", "20-精准等级", "21-躲闪等级", "22-招架等级", "23-五秒回蓝", "24-法术穿透"],
+    'dmg_type1': ["0-物理", "1-神圣", "2-火焰", "3-自然", "4-冰霜", "5-暗影", "6-奥术"],
+    'spelltrigger_1': ["0-使用", "1-装备", "2-被动", "3-击中", "4-使用无消耗", "5-使用失败"],
+    'socketColor_1': ["0-无", "1-红", "2-黄", "4-蓝", "8-多彩", "14-棱彩"],
+    'BagFamily': ["0-无", "1-箭袋", "2-弹药袋", "3-灵魂碎片袋", "4-皮革包", "5-草药包", "6-附魔包", "7-工程包", "8-钥匙包", "9-宝石包", "10-矿石包", "11-暗月卡片", "12-垃圾包"],
 }
 
 # 完整字段映射
