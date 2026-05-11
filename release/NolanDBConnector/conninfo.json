@@ -1,0 +1,10 @@
+{
+  "db": {
+    "host": "43.248.129.172",
+    "port": 3306,
+    "user": "root",
+    "password": "",
+    "database": "acore_world"
+  },
+  "savePassword": true
+}
